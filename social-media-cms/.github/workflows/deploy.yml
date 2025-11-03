@@ -1,0 +1,87 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-strapi:
+    name: Deploy Strapi
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Build Strapi
+        run: yarn turbo run build --filter=@social-cms/strapi
+        env:
+          NODE_ENV: production
+      
+      - name: Deploy to Strapi Cloud
+        run: |
+          echo "Deploy to Strapi Cloud or your hosting provider"
+          # Add your deployment script here
+
+  deploy-web:
+    name: Deploy Web App
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Build Next.js app
+        run: yarn turbo run build --filter=@social-cms/web
+        env:
+          NODE_ENV: production
+          STRAPI_API_URL: ${{ secrets.STRAPI_API_URL }}
+      
+      - name: Deploy to Vercel
+        run: |
+          echo "Deploy to Vercel or your hosting provider"
+          # npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  deploy-mobile:
+    name: Deploy Mobile App
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+      
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Publish to Expo
+        run: |
+          cd apps/mobile
+          expo publish --non-interactive

@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: social-cms-postgres
+    environment:
+      POSTGRES_DB: social_cms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - social-cms-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: social-cms-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - social-cms-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Strapi CMS
+  strapi:
+    build:
+      context: ./apps/strapi
+      dockerfile: Dockerfile
+    container_name: social-cms-strapi
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: social_cms
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_SSL: false
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "1337:1337"
+    volumes:
+      - ./apps/strapi:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - social-cms-network
+    command: yarn dev
+
+  # Next.js Web App
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: social-cms-web
+    environment:
+      STRAPI_API_URL: http://strapi:1337
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+    depends_on:
+      - strapi
+    networks:
+      - social-cms-network
+    command: yarn dev
+
+  # Documentation
+  docs:
+    build:
+      context: ./apps/docs
+      dockerfile: Dockerfile
+    container_name: social-cms-docs
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/docs:/app
+      - /app/node_modules
+    networks:
+      - social-cms-network
+    command: yarn dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  social-cms-network:
+    driver: bridge

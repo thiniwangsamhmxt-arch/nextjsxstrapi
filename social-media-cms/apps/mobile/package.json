@@ -1,0 +1,32 @@
+{
+  "name": "@social-cms/mobile",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "dev": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "expo export",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@social-cms/types": "*",
+    "@social-cms/utils": "*",
+    "expo": "~50.0.0",
+    "expo-router": "~3.4.0",
+    "react": "18.2.0",
+    "react-native": "0.73.2",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0"
+  },
+  "devDependencies": {
+    "@social-cms/config": "*",
+    "@babel/core": "^7.23.7",
+    "@types/react": "~18.2.48",
+    "typescript": "^5.3.3",
+    "eslint": "^8.56.0"
+  },
+  "private": true
+}

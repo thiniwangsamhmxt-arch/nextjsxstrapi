@@ -1,0 +1,31 @@
+{
+  "name": "@social-cms/strapi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Strapi v5 CMS for Social Media Content Management",
+  "scripts": {
+    "dev": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi",
+    "lint": "eslint src",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@strapi/strapi": "^5.0.0",
+    "@strapi/plugin-users-permissions": "^5.0.0",
+    "@strapi/plugin-i18n": "^5.0.0",
+    "@strapi/plugin-cloud": "^5.0.0",
+    "pg": "^8.11.3",
+    "redis": "^4.6.12",
+    "better-sqlite3": "^9.2.2"
+  },
+  "devDependencies": {
+    "@social-cms/types": "*",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
+  }
+}
